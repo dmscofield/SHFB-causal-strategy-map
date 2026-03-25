@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SHFB Causal Strategic Map</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+font-family: 'Cooper Lt BT', 'Sorts Mill Goudy', Georgia, serif;
+background: linear-gradient(180deg, #253B5E 0%, #1E3050 50%, #253B5E 100%);
+color: #E8ECF4;
+min-height: 100vh;
+overflow-x: hidden;
+}
+h1 {
+text-align: center;
+padding: 24px 20px 4px;
+font-size: 24px;
+font-weight: 700;
+color: #FFFFFF;
+}
+.subtitle {
+text-align: center;
+font-size: 12px;
+color: #BAD3E7;
+margin-bottom: 6px;
+font-weight: 600;
+}
+.method-note {
+text-align: center;
+font-size: 10px;
+color: #78BDCC;
+margin-bottom: 14px;
+font-style: italic;
+}
+
+.legend {
+display: flex;
+justify-content: center;
+gap: 18px;
+margin-bottom: 12px;
+flex-wrap: wrap;
+padding: 0 20px;
+}
+.legend-item {
+display: flex;
+align-items: center;
+gap: 6px;
+font-size: 11px;
+color: #BAD3E7;
+}
+.legend-dot {
+width: 12px;
+height: 12px;
+border-radius: 3px;
+}
+
+.map-container {
+position: relative;
+max-width: 1200px;
+margin: 0 auto;
+padding: 0 16px 30px;
+}
+
+.layer {
+position: relative;
+z-index: 2;
+margin-bottom: 10px;
+}
+.layer-label {
+font-size: 10px;
+font-weight: 700;
+text-transform: uppercase;
+letter-spacing: 1.5px;
+color: #BAD3E7;
+margin-bottom: 6px;
+padding-left: 4px;
+}
+.layer-insight {
+font-size: 10px;
+color: #78BDCC;
+font-style: italic;
+margin-bottom: 6px;
+padding-left: 4px;
+}
+
+.cards-row {
+display: flex;
+gap: 10px;
+flex-wrap: wrap;
+}
+
+.card {
+flex: 1;
+min-width: 180px;
+border-radius: 8px;
+padding: 12px 14px;
+position: relative;
+cursor: default;
+transition: transform 0.15s, box-shadow 0.15s, opacity 0.3s;
+}
+.card:hover {
+transform: translateY(-2px);
+box-shadow: 0 6px 24px rgba(0,0,0,0.3);
+}
+.card-label {
+font-size: 9px;
+font-weight: 700;
+opacity: 0.6;
+margin-bottom: 3px;
+text-transform: uppercase;
+letter-spacing: 0.5px;
+}
+.card-title {
+font-size: 14px;
+font-weight: 700;
+margin-bottom: 4px;
+}
+.card-details {
+font-size: 11px;
+line-height: 1.45;
+opacity: 0.9;
+}
+.card-new {
+position: absolute;
+top: 8px;
+right: 8px;
+font-size: 8px;
+font-weight: 700;
+padding: 1px 5px;
+border-radius: 3px;
+background: rgba(254,198,11,0.3);
+color: #FEC60B;
+text-transform: uppercase;
+letter-spacing: 0.5px;
+}
+
+/* === VISION === */
+.vision-row { justify-content: center; }
+.card.vision {
+background: #3A38C8;
+border: 1px solid #5A58FF;
+border-left: 4px solid #7B79FF;
+color: #FFFFFF;
+max-width: 360px;
+}
+.card.vision .card-title { color: #FFFFFF; }
+.vision-badge {
+display: inline-block;
+font-size: 9px;
+font-weight: 700;
+padding: 1px 6px;
+border-radius: 3px;
+background: #7B79FF;
+color: #FFF;
+margin-right: 4px;
+}
+
+/* === TENSION === */
+.card.tension {
+background: #7A5A10;
+border: 2px solid #FEC60B;
+color: #FFFFFF;
+max-width: 100%;
+text-align: center;
+}
+.card.tension .card-title { color: #FEC60B; font-size: 15px; }
+
+/* === FIM BRIDGE === */
+.card.bridge {
+background: linear-gradient(135deg, #3A38C8, #2D7E38);
+border: 2px solid #7B79FF;
+color: #FFFFFF;
+max-width: 500px;
+margin: 0 auto;
+text-align: center;
+}
+.card.bridge .card-title { color: #FFFFFF; font-size: 15px; }
+.bridge-tags { margin-top: 6px; display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
+.bridge-tag {
+font-size: 9px;
+padding: 2px 7px;
+border-radius: 3px;
+font-weight: 600;
+}
+.bridge-tag.mission { background: rgba(73,69,246,0.3); color: #9593FF; }
+.bridge-tag.revenue { background: rgba(79,173,91,0.3); color: #7DCF87; }
+
+/* === DECISIONS === */
+.card.decision {
+background: #9E4A5E;
+border: 1px dashed #D4899E;
+border-left: 4px dashed #D4899E;
+color: #FFFFFF;
+}
+.card.decision .card-title { color: #FFFFFF; }
+.card.keystone {
+background: #B8445A;
+border: 2px solid #FFB0C0;
+border-left: 5px solid #FFB0C0;
+}
+.keystone-badge {
+display: inline-block;
+font-size: 8px;
+font-weight: 700;
+padding: 1px 5px;
+border-radius: 3px;
+background: rgba(255,176,192,0.3);
+color: #FFB0C0;
+text-transform: uppercase;
+margin-left: 6px;
+}
+.decision-dep {
+font-size: 9px;
+color: #FFD0DD;
+margin-top: 4px;
+font-style: italic;
+}
+
+/* === RISK LOOP === */
+.risk-loop-container {
+position: relative;
+background: rgba(104,52,154,0.08);
+border: 1px solid rgba(104,52,154,0.3);
+border-radius: 12px;
+padding: 14px;
+margin-bottom: 10px;
+}
+.risk-loop-label {
+position: absolute;
+top: -10px;
+left: 20px;
+background: #253B5E;
+padding: 0 8px;
+font-size: 10px;
+font-weight: 700;
+color: #CCA4F9;
+text-transform: uppercase;
+letter-spacing: 1px;
+}
+.card.risk {
+background: #552A80;
+border: 1px solid #8A5ABF;
+border-left: 4px solid #8A5ABF;
+color: #FFFFFF;
+}
+.card.risk .card-title { color: #FFFFFF; }
+.risk-score {
+display: inline-block;
+background: rgba(255,255,255,0.15);
+color: #E0C8FF;
+font-size: 10px;
+font-weight: 700;
+padding: 1px 6px;
+border-radius: 3px;
+margin-left: 6px;
+}
+.loop-arrow {
+font-size: 11px;
+color: #CCA4F9;
+text-align: center;
+padding: 4px 0;
+font-weight: 600;
+}
+.card.risk-hidden {
+background: #6B2A2A;
+border: 1px solid #CC5555;
+border-left: 4px solid #CC5555;
+color: #FFFFFF;
+}
+.card.risk-hidden .card-title { color: #FFAAAA; }
+
+/* === SYSTEMIC CONSTRAINT === */
+.card.constraint {
+background: #8B6520;
+border: 2px solid #D4A030;
+color: #FFFFFF;
+text-align: center;
+}
+.card.constraint .card-title { color: #FFD060; font-size: 15px; }
+.constraint-stat {
+font-size: 22px;
+font-weight: 700;
+color: #FFD060;
+margin: 4px 0;
+}
+
+/* === FOUNDATIONS === */
+.card.trust-base {
+background: #192D65;
+border: 2px solid #4945F6;
+color: #FFFFFF;
+text-align: center;
+}
+.card.trust-base .card-title { color: #BAD3E7; font-size: 16px; }
+.trust-stat {
+font-size: 13px;
+color: #7B79FF;
+font-weight: 700;
+margin-top: 4px;
+}
+.trust-warning {
+font-size: 10px;
+color: #C27085;
+margin-top: 4px;
+font-style: italic;
+}
+
+.card.asset {
+color: #FFFFFF;
+}
+.card.asset-inst {
+background: #192D65;
+border: 1px solid #3A5A9A;
+border-left: 4px solid #5A8ACC;
+}
+.card.asset-inst .card-title { color: #BAD3E7; }
+.card.asset-phys {
+background: #1E6E72;
+border: 1px solid #3A9EA2;
+border-left: 4px solid #78BDCC;
+}
+.card.asset-phys .card-title { color: #B0E8F0; }
+.card.asset-ppl {
+background: #5A2D88;
+border: 1px solid #8A5ABF;
+border-left: 4px solid #CCA4F9;
+}
+.card.asset-ppl .card-title { color: #E0C8FF; }
+.card.asset-rel {
+background: #2D7E38;
+border: 1px solid #4FAD5B;
+border-left: 4px solid #7DCF87;
+}
+.card.asset-rel .card-title { color: #B0F0B8; }
+
+/* Flow labels */
+.flow-label {
+text-align: center;
+font-size: 10px;
+color: #BAD3E7;
+font-weight: 600;
+letter-spacing: 1px;
+text-transform: uppercase;
+padding: 3px 0;
+position: relative;
+z-index: 2;
+opacity: 0.5;
+}
+.flow-label.important {
+opacity: 0.8;
+color: #FFD060;
+font-size: 11px;
+}
+
+/* Hover highlighting */
+.card.dimmed { opacity: 0.15; }
+.card.highlighted {
+opacity: 1;
+box-shadow: 0 0 24px rgba(186,211,231,0.2);
+}
+
+@media (max-width: 800px) {
+.card { min-width: 150px; }
+h1 { font-size: 20px; }
+}
+
+.footer-bar {
+max-width: 1200px;
+margin: 0 auto;
+padding: 10px 24px;
+text-align: center;
+font-size: 10px;
+color: #78BDCC;
+border-top: 2px solid rgba(186,211,231,0.3);
+}
+
+/* Semantic callout */
+.semantic-note {
+font-size: 9px;
+color: #78BDCC;
+font-style: italic;
+margin-top: 4px;
+padding-left: 8px;
+border-left: 2px solid rgba(120,189,204,0.3);
+}
+</style>
+</head>
+<body>
+
+<h1>SHFB Causal Strategic Map</h1>
+<p class="subtitle">What changes when you apply neurosymbolic, semantic, and causal analysis</p>
+<p class="method-note">Neurosymbolic = logical dependencies and constraints | Semantic = what people actually mean | Causal = feedback loops and intervention leverage</p>
+
+<div class="legend">
+<div class="legend-item"><div class="legend-dot" style="background:#4945F6"></div>2029 Vision</div>
+<div class="legend-item"><div class="legend-dot" style="background:#FEC60B"></div>Unresolved Tension</div>
+<div class="legend-item"><div class="legend-dot" style="background:linear-gradient(135deg,#3A38C8,#2D7E38)"></div>FIM Bridge</div>
+<div class="legend-item"><div class="legend-dot" style="background:#C27085"></div>Key Decisions</div>
+<div class="legend-item"><div class="legend-dot" style="background:#68349A"></div>Risk Loop</div>
+<div class="legend-item"><div class="legend-dot" style="background:#CC5555"></div>Hidden Risk</div>
+<div class="legend-item"><div class="legend-dot" style="background:#D4A030"></div>Systemic Constraint</div>
+<div class="legend-item"><div class="legend-dot" style="background:#192D65"></div>Trust Foundation</div>
+</div>
+
+<div class="map-container">
+
+<!-- TOP: UNRESOLVED STRATEGIC TENSION -->
+<div class="layer">
+<div class="layer-label">Unresolved Strategic Tension</div>
+<div class="layer-insight">NEW: This question determines which version of 2029 you're building. It's Retreat Question #1.</div>
+<div class="cards-row">
+<div class="card tension" data-id="tension">
+<div class="card-new">New</div>
+<div class="card-title">"Are we optimizing as a food bank or building a food system intervention?"</div>
+<div class="card-details">
+FIM, urban ag, workforce dev, community hub all pull broader. Bloomfield warns about mission creep. 1 board member wants laser focus on hunger. External stakeholders already see SHFB as more than a food bank. This tension shapes every decision below.
+</div>
+</div>
+</div>
+</div>
+
+<div class="flow-label important">answer determines &darr;</div>
+
+<!-- 2029 VISION -->
+<div class="layer">
+<div class="layer-label">2029 Vision Outcomes</div>
+<div class="layer-insight">CHANGED: FIM is now a separate "bridge" element, not one of five equal goals. The specificity gap means this vision is largely Samantha's, not yet a shared team vision.</div>
+<div class="cards-row vision-row">
+<div class="card vision" data-id="v2">
+<div class="vision-badge">Operations</div>
+<div class="card-title">Modernized &amp; Scalable</div>
+<div class="card-details">Facility expanded. Systems upgraded. Partner portal. Routing/logistics. The "SHFB Way" codified.</div>
+</div>
+<div class="card vision" data-id="v3">
+<div class="vision-badge">Financial</div>
+<div class="card-title">Sustainable &amp; Diversified</div>
+<div class="card-details">Revenue beyond gov't. Younger donors. FIM fee-for-service. Earned income model.</div>
+</div>
+<div class="card vision" data-id="v4">
+<div class="vision-badge">Culture</div>
+<div class="card-title">Great Place to Work</div>
+<div class="card-details">Low burnout. Cross-trained team. Feedback culture. 4-day workweek (Samantha's lone voice).</div>
+</div>
+<div class="card vision" data-id="v5">
+<div class="vision-badge">Community</div>
+<div class="card-title">Trusted Regional Leader</div>
+<div class="card-details">Go-to partner across 6 counties. Partner network strong, not fragile. Culture aligned inside-out.</div>
+</div>
+</div>
+</div>
+
+<div class="flow-label">&uarr; to achieve</div>
+
+<!-- FIM BRIDGE -->
+<div class="layer">
+<div class="layer-label">The Bridge: Mission + Revenue</div>
+<div class="layer-insight">NEW: FIM is unique because it's both a community impact strategy AND a revenue model. 3/5 leaders + 5/5 healthcare VOCs + 4/8 board converge here. Pulled out of the vision row because it drives financial sustainability directly.</div>
+<div class="cards-row" style="justify-content:center;">
+<div class="card bridge" data-id="fim" data-feeds="v2,v3,v4,v5" data-needs="d-bldg,d-staff,constraint">
+<div class="card-new">Elevated</div>
+<div class="card-title">Food is Medicine</div>
+<div class="card-details">
+Healthcare integration (3/5 leaders, 5/5 healthcare VOCs, 4/8 board). 1115 Medicaid waiver = potentially self-funding. But internally: Julie is the only one pushing hard. Needs internal selling before the retreat.
+</div>
+<div class="bridge-tags">
+<span class="bridge-tag mission">Mission: Health outcomes for neighbors</span>
+<span class="bridge-tag revenue">Revenue: Fee-for-service via Medicaid</span>
+</div>
+<div class="semantic-note">Semantic: "FIM" means positioning to Julie, revenue to Samantha, referral workflows to healthcare partners, partnership to board. These converge but require different investments.</div>
+</div>
+</div>
+</div>
+
+<div class="flow-label">&uarr; enabled by</div>
+
+<!-- KEY DECISIONS -->
+<div class="layer">
+<div class="layer-label">Key Decisions (Now - 2029)</div>
+<div class="layer-insight">CHANGED: Building expansion is the KEYSTONE, not one of four equals. Other decisions are dependent on or parallel to it. Dependencies shown.</div>
+<div class="cards-row">
+<div class="card decision keystone" data-id="d-bldg" data-feeds="v2,v3,fim" data-needs="f2">
+<div class="card-title">Facility Expansion <span class="keystone-badge">Keystone</span></div>
+<div class="card-details">
+3/4 leaders, 5/8 board. Cold chain, dock, storage. FIM, Order Ahead, and partner portal all blocked without this. Go/no-go needed by end of 2026.
+</div>
+<div class="decision-dep">Blocks: FIM scaling, Order Ahead, fresh food volume, partner capacity</div>
+</div>
+
+<div class="card decision" data-id="d-mp" data-feeds="v5" data-needs="d-bldg,f2,f4">
+<div class="card-title">Mobile Pantry Reform</div>
+<div class="card-details">
+5/9 LT strongest consensus. Shift to choice, order-ahead, partner-managed. Fix food quality (rotten produce = 3 VOC mentions).
+</div>
+<div class="decision-dep">Depends on: building decision, partner capacity</div>
+</div>
+
+<div class="card decision" data-id="d-staff" data-feeds="v4,v5" data-needs="f3,constraint">
+<div class="card-title">Retain &amp; Grow Staff</div>
+<div class="card-details">
+Cross-train. Trauma-informed baseline. Competitive pay. Only Samantha proposes structural fix (4-day workweek). Only Linda has a rescue plan.
+</div>
+<div class="decision-dep">Prerequisite: fix communication constraint first</div>
+</div>
+
+<div class="card decision" data-id="d-fund" data-feeds="v3,fim" data-needs="f1,f4">
+<div class="card-title">Funding Resilience</div>
+<div class="card-details">
+Replace gov't dependency. Younger donors. FIM fee-for-service is the boldest path. Diversify before the next cut.
+</div>
+<div class="decision-dep">FIM revenue depends on: building + Medicaid waiver</div>
+</div>
+</div>
+</div>
+
+<div class="flow-label">&uarr; which forces</div>
+
+<!-- RISK LOOP -->
+<div class="layer">
+<div class="layer-label">Reinforcing Risk Loop</div>
+<div class="layer-insight">CHANGED: Risks are NOT parallel. They form a reinforcing cycle. Each risk amplifies the next. The hidden risk (partner fragility) feeds back into staff burnout.</div>
+<div class="risk-loop-container">
+<div class="risk-loop-label">Causal feedback loop (not parallel risks)</div>
+<div class="cards-row">
+<div class="card risk" data-id="rB" data-threatens="f1,f2,f3,f4">
+<div class="card-title">Supply &amp; External <span class="risk-score">80.5</span></div>
+<div class="card-details">Fed/state cuts + climate. 8/8 board unanimous. Hits all four foundations. Triggers the loop.</div>
+</div>
+<div class="card risk" data-id="rA" data-threatens="f1,f3">
+<div class="card-title">People <span class="risk-score">55.0</span></div>
+<div class="card-details">Burnout jumped to #1 by frequency. 3/6 flagged independently. Only 1 rescue plan exists.</div>
+<div class="semantic-note">Semantic: "Burnout" = 3 different problems. Staff: workload. Volunteers: aging bodies. Partners: leadership succession.</div>
+</div>
+<div class="card risk" data-id="rC" data-threatens="f1,f2">
+<div class="card-title">Tech &amp; Infrastructure <span class="risk-score">51.0</span></div>
+<div class="card-details">IT outranks cooler on frequency. No server replacement schedule. 1 IT person. $700K shutdown cost precedent.</div>
+</div>
+<div class="card risk-hidden" data-id="rD" data-threatens="f3,f4">
+<div class="card-new">New</div>
+<div class="card-title">Partner Fragility</div>
+<div class="card-details">Partners are existentially dependent. Father's Heart + First Lutheran would close without SHFB. Volunteers 70+. If partners collapse, demand floods back to SHFB directly, accelerating staff burnout.</div>
+</div>
+</div>
+<div class="loop-arrow">&#x21BB; Cuts &rarr; more demand &rarr; burnout &rarr; turnover &rarr; knowledge loss &rarr; worse service &rarr; trust erodes &rarr; less revenue &rarr; can't invest &rarr; can't adapt &rarr; cycle accelerates</div>
+</div>
+</div>
+
+<div class="flow-label important">&uarr; threatening (but gated by)</div>
+
+<!-- SYSTEMIC CONSTRAINT -->
+<div class="layer">
+<div class="layer-label">Systemic Constraint (Execution Gate)</div>
+<div class="layer-insight">NEW: Absent from original map entirely. #1 internal weakness. Logical prerequisite for implementing FIM, partner portal, project management, emergency SOPs, or any multi-department initiative.</div>
+<div class="cards-row" style="justify-content:center;">
+<div class="card constraint" data-id="constraint" data-threatens="f1,f3">
+<div class="card-new">New</div>
+<div class="card-title">Cross-Department Communication</div>
+<div class="constraint-stat">14 of 21 SWOTs</div>
+<div class="card-details">
+Silos, gatekeeping, last-minute inclusion. Root cause of missed deadlines, duplicated effort, reactive mode. Culture rewards "moving on" vs. fixing. Relies on heroes to overcome systemic weakness.
+</div>
+<div class="semantic-note">Semantic: "Communication" = 3 different problems. Staff: "don't loop me in." Board: "external storytelling." Partners: "tell us when you can't deliver." These need different fixes.</div>
+</div>
+</div>
+</div>
+
+<div class="flow-label">&uarr; sits above</div>
+
+<!-- FOUR ASSET PILLARS -->
+<div class="layer">
+<div class="layer-label">Asset Pillars</div>
+<div class="cards-row">
+<div class="card asset asset-inst" data-id="f1">
+<div class="card-label">#1</div>
+<div class="card-title">Institutional</div>
+<div class="card-details">Reputation. Leadership. Systems. Track record. But: initiative sprawl, no evaluation framework. Growth exceeding governance.</div>
+</div>
+<div class="card asset asset-phys" data-id="f2">
+<div class="card-label">#2</div>
+<div class="card-title">Physical</div>
+<div class="card-details">Building, warehouse, fleet. But: at capacity. 5 drivers, 4 trucks, 1 semi, all same age. Expansion stalled. Cooler limits produce volume.</div>
+</div>
+<div class="card asset asset-ppl" data-id="f3">
+<div class="card-label">#3</div>
+<div class="card-title">People</div>
+<div class="card-details">Caliber, dedication, neighbor focus. But: no cross-training matrix, no succession plans, no formal onboarding. Knowledge in heads, not systems.</div>
+</div>
+<div class="card asset asset-rel" data-id="f4">
+<div class="card-label">#4</div>
+<div class="card-title">Relationships</div>
+<div class="card-details">Community trust. Partner network. Donors. Board. But: partners fragile at edges. Volunteer aging. Named staff ARE the program (Chris, Amelia, Kendra).</div>
+</div>
+</div>
+</div>
+
+<div class="flow-label">&uarr; built on</div>
+
+<!-- TRUST FOUNDATION -->
+<div class="layer">
+<div class="layer-label">True Foundation</div>
+<div class="layer-insight">CHANGED: Trust is THE foundation, not one of four equal pillars. Zero distrust across 15 stakeholder groups. But it's being eroded at point of service.</div>
+<div class="cards-row" style="justify-content:center;">
+<div class="card trust-base" data-id="trust" style="max-width:700px;">
+<div class="card-title">Trust</div>
+<div class="card-details">
+"Gold Standard" (Bettcher). "Essential and invaluable" (Lorain). "Never had a relationship with a food bank as close as this" (Giant Eagle). Zero distrust across all 15 non-neighbor stakeholder segments, 24 neighbor respondents, 21 staff SWOTs, and 8 board members.
+</div>
+<div class="trust-stat">100% of stakeholders express trust. This is the foundation everything else is built on.</div>
+<div class="trust-warning">But: Staff discussing politics at distributions. Judgmental comments about neighbors' cars. Inconsistent registration policies. Warehouse-mission disconnect. Visible to volunteers. Invisible to board and donors. Internal culture cracks eventually become external reputation problems.</div>
+</div>
+</div>
+</div>
+
+</div>
+
+<div class="footer-bar">Mills-Scofield, LLC | Neurosymbolic + Semantic + Causal Analysis</div>
+
+<script>
+const allCards = document.querySelectorAll('.card');
+
+allCards.forEach(card => {
+card.addEventListener('mouseenter', () => {
+const id = card.dataset.id;
+const threatens = (card.dataset.threatens || '').split(',').filter(Boolean);
+const feeds = (card.dataset.feeds || '').split(',').filter(Boolean);
+const needs = (card.dataset.needs || '').split(',').filter(Boolean);
+const related = new Set([id, ...threatens, ...feeds, ...needs]);
+
+allCards.forEach(c => {
+const ct = (c.dataset.threatens || '').split(',').filter(Boolean);
+const cf = (c.dataset.feeds || '').split(',').filter(Boolean);
+const cn = (c.dataset.needs || '').split(',').filter(Boolean);
+if ([...ct, ...cf, ...cn].includes(id)) related.add(c.dataset.id);
+});
+
+allCards.forEach(c => {
+if (related.has(c.dataset.id)) {
+c.classList.add('highlighted');
+c.classList.remove('dimmed');
+} else {
+c.classList.add('dimmed');
+c.classList.remove('highlighted');
+}
+});
+});
+
+card.addEventListener('mouseleave', () => {
+allCards.forEach(c => c.classList.remove('dimmed', 'highlighted'));
+});
+});
+</script>
+
+</body>
+</html>
+
